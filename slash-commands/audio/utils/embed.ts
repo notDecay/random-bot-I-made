@@ -1,6 +1,8 @@
-import type { CommandInteraction, MessageEmbedOptions, User } from "discord.js"
+import type { APIEmbed, CommandInteraction, User } from "discord.js"
 import type { InfoData } from "play-dl"
-import { Color, Icon } from "../../../utils"
+import { Color, Embed, Icon } from "../../../utils"
+
+const EMBED_COLOR = Color.NO_COLOR
 
 export function sendAudioInfoEmbed(
   interaction: CommandInteraction, 
@@ -10,7 +12,7 @@ export function sendAudioInfoEmbed(
   const { durationRaw, thumbnails } = audioInfo.video_details
   const { author, trackUrl } = formatUrl(audioInfo)
 
-  const embed: MessageEmbedOptions = {
+  const embed: APIEmbed = {
     title: 'Start playing',
     fields: [
       {
@@ -29,8 +31,8 @@ export function sendAudioInfoEmbed(
         inline: true
       }
     ],
-    timestamp: new Date().toISOString(),
-    color: Color.NO_COLOR,
+    timestamp: Embed.createNewDate(),
+    color: EMBED_COLOR,
     footer: {
       text: `Requested by ${requestedUser.tag}`,
       icon_url: requestedUser.avatarURL()!
@@ -51,10 +53,39 @@ export function sendAudioAddedEmbed(
 ) {
   const { author, trackUrl } = formatUrl(audioInfo)
 
-  const embed: MessageEmbedOptions = {
+  const embed: APIEmbed = {
     description: `Track ${trackUrl} by ${author} has been added`,
-    timestamp: new Date().toISOString(),
-    color: Color.NO_COLOR,
+    color: EMBED_COLOR,
+  }
+
+  return interaction.followUp({
+    embeds: [embed]
+  })
+}
+
+export function sendNoTrackLeftEmbed(
+  interaction: CommandInteraction
+) {
+  const embed: APIEmbed = {
+    description: `There's no track to play...`,
+    color: EMBED_COLOR
+  }
+
+  return interaction.followUp({
+    embeds: [embed]
+  })
+}
+
+export async function sendInvalidUrl(
+  interaction: CommandInteraction
+) {
+  const embed: APIEmbed = {
+    title: `Whoops, I can't play this track`,
+    description: [
+      `Seems like the url is invalid :(`,
+    ].join('\n'),
+    timestamp: Embed.createNewDate(),
+    color: EMBED_COLOR
   }
 
   return interaction.followUp({
@@ -64,10 +95,10 @@ export function sendAudioAddedEmbed(
 
 function formatUrl(audioInfo: InfoData) {
   const { title, url, channel } = audioInfo.video_details
-  const _formatUrl = (name: string, url: string) => `[**${name}**](${url})`
+  const formatThis = (name: string, url: string) => `[**${name}**](${url})`
 
   return {
-    trackUrl: _formatUrl(title!, url),
-    author: `${channel?.verified ? Icon.VERIFIED : ''} ${_formatUrl(channel?.name!, channel?.url!)}`.trim()
+    trackUrl: formatThis(title!, url),
+    author: `${channel?.verified ? Icon.VERIFIED : ''} ${formatThis(channel?.name!, channel?.url!)}`.trim()
   }
 }

@@ -1,14 +1,13 @@
 import playdl from 'play-dl'
 import {
   createAudioPlayer,
-  createAudioResource,
+  createAudioResource as _createAudioResource,
   NoSubscriberBehavior,
-  type VoiceConnection
 } from "@discordjs/voice"
 import type { CommandInteraction } from 'discord.js'
 import { logdown } from '../../..'
 
-export async function _createAudioResource(url: string, interaction: CommandInteraction) {
+export async function createAudioResource(url: string, interaction: CommandInteraction) {
   console.log(`[audio] streaming ${url}...`)
   let stream: Awaited<ReturnType<typeof playdl['stream']>>
   let info: Awaited<ReturnType<typeof playdl['video_basic_info']>>
@@ -21,7 +20,7 @@ export async function _createAudioResource(url: string, interaction: CommandInte
     return null
   }
 
-  const resource = createAudioResource(stream.stream, {
+  const resource = _createAudioResource(stream.stream, {
     inputType: stream.type
   })
 
@@ -37,12 +36,4 @@ export async function _createAudioResource(url: string, interaction: CommandInte
   }
 }
 
-export type AudioData = NonNullable<Awaited<ReturnType<typeof _createAudioResource>>>
-
-export function playTheAudio(audioData: AudioData, connection: VoiceConnection) {
-  const { audio } = audioData
-  connection.subscribe(audio.player)
-
-  console.log('[audio] playing it right now...')
-  audio.player.play(audio.resource)
-}
+export type AudioData = NonNullable<Awaited<ReturnType<typeof createAudioResource>>>

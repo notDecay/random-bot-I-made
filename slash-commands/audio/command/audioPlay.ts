@@ -7,9 +7,16 @@ import {
 import {
   type VoiceConnection
 } from "@discordjs/voice"
-import { _createAudioResource, audioQueue, AudioState } from "../utils"
+import { 
+  createAudioResource, 
+  audioQueue, 
+  AudioState, 
+  sendAudioAddedEmbed, 
+  sendAudioInfoEmbed, 
+  sendNoTrackLeftEmbed,
+  sendInvalidUrl
+} from "../utils"
 import { AudioUpdater } from "../function"
-import { sendAudioAddedEmbed } from "../utils/embed"
 
 interface IAudioPlayCommandOptions {
   url: string
@@ -31,20 +38,29 @@ export const audioPlay: SlashCommandFunction<IAudioPlayCommandOptions> = async({
 
   const { url } = commandOptions
   
-  let audioData = await _createAudioResource(url, interaction)
+  let audioData = await createAudioResource(url, interaction)
   if (!audioData) {
-    return interaction.followUp({
-      content: 'Your url is invalid',
-    })
+    return await sendInvalidUrl(interaction)
   }
 
   audioQueue.enqueue(audioData)
   if (AudioState.state.isFirstTime) {
     currentConnection = botJoinVoiceChannel(member as GuildMember, guild!)
-    new AudioUpdater({
+    const audioUpdater = new AudioUpdater({
       interaction,
       voiceConnection: currentConnection
-    }).update()
+    })
+    
+    audioUpdater.onTrackStart = async(audioData) => {
+      await sendAudioInfoEmbed(interaction, audioData.addedBy, audioData.audio.info)
+    }
+    
+    audioUpdater.onTrackEnd = async() => {
+      await sendNoTrackLeftEmbed(interaction)
+      AudioState.reset()
+    }
+
+    audioUpdater.update()
   }
 
   if (!AudioState.state.isFirstTime) {

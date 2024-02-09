@@ -37,10 +37,16 @@ type ErrorStack = {
   message: string
 }
 
+/**
+ * @param error any error
+ * @returns 
+ */
 export function parseErrorStack(error: Error): ErrorStack {
   const thisError = JSON.stringify(error, Object.getOwnPropertyNames(error))
   return JSON.parse(thisError)
 }
+
+export type AnyFunction = (...args: any[]) => any
 
 export * from "./bot"
 export * from "./logging"
