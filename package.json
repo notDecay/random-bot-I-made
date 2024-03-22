@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild --outdir=\"./dist\" --packages=\"external\" --bundle --platform=\"node\" --watch index.ts"
+    "build": "esbuild --outdir=\"./dist\" --packages=\"external\" --bundle --platform=\"node\" ./src/index.ts",
+    "watch": "npm run build -- --watch"
   },
   "keywords": [],
   "author": "",
@@ -12,9 +13,9 @@
   "dependencies": {
     "@discordjs/voice": "^0.16.1",
     "discord.js": "^14.14.1",
-    "eventemitter3": "^5.0.1",
+    "dotenv": "^16.4.5",
     "glob": "^7.1.7",
-    "mongoose": "^6.0.2",
+    "libsodium-wrappers": "^0.7.13",
     "play-dl": "^1.9.7"
   }
 }
