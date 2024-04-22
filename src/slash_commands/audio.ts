@@ -13,8 +13,8 @@ import {
   audioSkip, 
   audioStop, 
   audioUnpause, 
-  isAudioPlayed,
-  sendNoAudioPlayed
+  AudioState,
+  embed,
 } from "../features/audio"
 
 export const audio = {
@@ -57,10 +57,7 @@ export const audio = {
   ],
   async run({ interaction, client, args }) {
     if (!isUserOnAVoiceChannel(interaction.member as GuildMember)) {
-      return interaction.reply({
-        content: 'Oops, you\'re not joining any voice channel',
-        ephemeral: true
-      })
+      return embed.sendUserNotJoinAnyVoiceChannel(interaction)
     }
     
     const options = (interaction.options as CommandInteractionOptionResolver)
@@ -68,17 +65,16 @@ export const audio = {
     const subCommand = options.getSubcommand()
 
     if (subCommand === 'play') {
-      const url = options.getString('url')!
-      audioPlay(commandOptions, {
-        url
+      return audioPlay(commandOptions, {
+        url:  options.getString('url')!
       })
-
-      return
     }
 
-    if (!isAudioPlayed()) {
-      return await sendNoAudioPlayed(interaction)
+    const currentState = AudioState.get()
+    if (!currentState.audioPlayer) {
+      return await embed.sendNoAudioPlayed(interaction)
     }
+
     const theCommand = {
       'stop': audioStop,
       'skip': audioSkip,

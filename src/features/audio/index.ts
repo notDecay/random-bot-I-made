@@ -1,5 +1,2 @@
 export * from "./command"
-export {
-  sendNoAudioPlayed,
-  isAudioPlayed
-} from './utils'
+export * from './utils'

@@ -1,16 +1,16 @@
 import { SlashCommandFunction } from "../../../utils"
-import { currentAudioState, forceResetAudioState } from "../utils"
+import { AudioState } from "../utils"
 
 export const audioStop: SlashCommandFunction = async({
   interaction
 }) => {
-  if (!currentAudioState.voiceConnection) return
+  const currentState = AudioState.get()
   await interaction.deferReply()
+
+  currentState.voiceConnection?.destroy()
+  AudioState.forceReset()
 
   interaction.followUp({
     content: 'The party has been ended'
   })
-
-  currentAudioState.voiceConnection?.destroy()
-  forceResetAudioState()
 }

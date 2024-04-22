@@ -1,12 +1,12 @@
-import { SlashCommandFunction } from "../../../utils"
-import { currentAudioState } from "../utils"
+import type { SlashCommandFunction } from "../../../utils"
+import { AudioState } from "../utils"
 
 export const audioPause: SlashCommandFunction = async({
   interaction
 }) => {
+  const currentState = AudioState.get()
   await interaction.deferReply()
-
-  currentAudioState.audioPlayer?.pause()
+  currentState.audioPlayer?.pause()
 
   interaction.followUp({
     content: 'Paused the current song...'

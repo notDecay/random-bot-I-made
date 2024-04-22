@@ -1,19 +1,15 @@
 import type { GuildMember } from "discord.js"
 import { 
   botJoinVoiceChannel,
-  isUserOnAVoiceChannel, 
   type SlashCommandFunction
 } from "../../../utils"
 import { 
-  createAudioResource, 
-  audioQueue, 
-  sendAudioAddedEmbed, 
-  sendAudioInfoEmbed, 
-  sendNoTrackLeftEmbed,
-  sendInvalidUrlEmbed,
-  currentAudioState
+  Audio,
+  AudioState,
+  AudioUpdater,
+  AudioUpdaterEvent,
+  embed
 } from "../utils"
-import { AudioUpdater, AudioUpdaterEventName } from "../functions"
 
 interface IAudioPlayCommandOptions {
   url: string
@@ -29,13 +25,15 @@ export const audioPlay: SlashCommandFunction<IAudioPlayCommandOptions> = async({
   // create an audio resource so the bot can play it.
   // send a invaid url embed if it failed to create
   const { url } = itsArguments
-  let audioData = await createAudioResource(url, interaction)
-  if (!audioData) {
-    return await sendInvalidUrlEmbed(interaction)
+  let audioData = await Audio.createResource(url, interaction)
+  if (Audio.doesHaveError(audioData)) {
+    return await embed.sendInvalidUrlEmbed(interaction)
   }
 
   // add it into the queue
-  audioQueue.enqueue(audioData)
+  AudioState.queue.enqueue(audioData)
+
+  const currentState = AudioState.get()
 
   // if you run the command for the first time or there is no track left in the queue,
   // it will initialize neccessary stuff to play the audio like:
@@ -45,24 +43,24 @@ export const audioPlay: SlashCommandFunction<IAudioPlayCommandOptions> = async({
   // else, it will add a track into the queue and send a embed
   // to indicate that the track have been added. That track
   // will gonna be used later on
-  if (currentAudioState.isFirstTime) {
+  if (currentState.isFirstTime) {
     const voiceConnection = botJoinVoiceChannel(member as GuildMember, guild!)
     const audioUpdater = new AudioUpdater({
-      interaction,
-      voiceConnection: voiceConnection
+      voiceConnection: voiceConnection,
+      queue: AudioState.queue
     })
 
-    audioUpdater.on(AudioUpdaterEventName.trackStart, async (audioData) => {
-      await sendAudioInfoEmbed(interaction, audioData.addedBy, audioData.audio.info)
+    audioUpdater.on(AudioUpdaterEvent.TRACK_START, async (audioData) => {
+      await embed.sendAudioInfoEmbed(interaction, audioData.addedBy, audioData.audio.info)
     })
 
-    audioUpdater.on(AudioUpdaterEventName.trackEnd, async() => {
-      await sendNoTrackLeftEmbed(interaction)
+    audioUpdater.on(AudioUpdaterEvent.TRACK_END, async() => {
+      await embed.sendNoTrackLeftEmbed(interaction)
     })
 
     audioUpdater.update()
   }
   else {
-    await sendAudioAddedEmbed(interaction, audioData.audio.info)
+    await embed.sendAudioAddedEmbed(interaction, audioData.audio.info)
   }
 }
