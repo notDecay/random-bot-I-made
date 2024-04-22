@@ -15,7 +15,7 @@ interface IAudioPlayCommandOptions {
   url: string
 }
 
-export const audioPlay: SlashCommandFunction<IAudioPlayCommandOptions> = async({
+export const play: SlashCommandFunction<IAudioPlayCommandOptions> = async({
   interaction
 }, itsArguments) => {
   const { member, guild } = interaction

@@ -1,18 +1,14 @@
 import { 
   ApplicationCommandOptionType, 
   type GuildMember, 
-  type CommandInteractionOptionResolver 
 } from "discord.js"
 import { 
   isUserOnAVoiceChannel,
-  type ISlashCommand 
+  type ISlashCommand, 
+  getOptions
 } from "../utils"
 import { 
-  audioPause, 
-  audioPlay, 
-  audioSkip, 
-  audioStop, 
-  audioUnpause, 
+  audioCommand,
   AudioState,
   embed,
 } from "../features/audio"
@@ -55,18 +51,18 @@ export const audio = {
       type: ApplicationCommandOptionType.Subcommand
     }
   ],
-  async run({ interaction, client, args }) {
+  async run(commandOptions) {
+    const { interaction } = commandOptions
     if (!isUserOnAVoiceChannel(interaction.member as GuildMember)) {
       return embed.sendUserNotJoinAnyVoiceChannel(interaction)
     }
     
-    const options = (interaction.options as CommandInteractionOptionResolver)
-    const commandOptions = { interaction, client, args }
+    const options = getOptions(interaction)
     const subCommand = options.getSubcommand()
 
     if (subCommand === 'play') {
-      return audioPlay(commandOptions, {
-        url:  options.getString('url')!
+      return audioCommand.play(commandOptions, {
+        url: options.getString('url')!
       })
     }
 
@@ -75,13 +71,6 @@ export const audio = {
       return await embed.sendNoAudioPlayed(interaction)
     }
 
-    const theCommand = {
-      'stop': audioStop,
-      'skip': audioSkip,
-      'pause': audioPause,
-      'unpause': audioUnpause
-    }
-
-    theCommand[subCommand](commandOptions, undefined)
+    audioCommand[subCommand](commandOptions, undefined)
   }
 } satisfies ISlashCommand

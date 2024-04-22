@@ -1,7 +1,7 @@
 import { SlashCommandFunction } from "../../../utils"
 import { AudioState } from "../utils"
 
-export const audioUnpause: SlashCommandFunction = async({
+export const unpause: SlashCommandFunction = async({
   interaction
 }) => {
   const currentState = AudioState.get()

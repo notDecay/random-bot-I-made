@@ -1,2 +1,2 @@
-export * from "./command"
+export * as audioCommand from "./command"
 export * from './utils'

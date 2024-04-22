@@ -1,4 +1,9 @@
-import { ApplicationCommand, Client, CommandInteraction } from "discord.js"
+import type { 
+  ApplicationCommand, 
+  Client, 
+  CommandInteraction, 
+  CommandInteractionOptionResolver 
+} from "discord.js"
 
 export interface ISlashCommandOptions {
   /**a instance of the Discord's client. */
@@ -94,3 +99,7 @@ export interface ISlashCommand extends SlashCommand {
  */
 export type SlashCommandFunction<TCommandOptions = undefined, TReturnType = any> = 
   (options: ISlashCommandOptions, slashCommandArguments: TCommandOptions) => TReturnType
+
+export function getOptions(interaction: CommandInteraction) {
+  return (interaction.options as CommandInteractionOptionResolver)
+}
