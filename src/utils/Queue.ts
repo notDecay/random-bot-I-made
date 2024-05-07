@@ -11,8 +11,8 @@ export class Queue<BasicallyAnything> {
   /**Adds an element to the back of the queue.
    * @param element The element to enqueue.
    */
-  enqueue(element: BasicallyAnything) {
-    this.elements.push(element)
+  enqueue(...element: BasicallyAnything[]) {
+    this.elements.push(...element)
   }
 
   /**Removes and returns the element at the front of the queue.

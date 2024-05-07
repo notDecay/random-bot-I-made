@@ -10,7 +10,6 @@ import {
 import { 
   audioCommand,
   AudioState,
-  embed,
 } from "../features/audio"
 
 export const audio = {
@@ -54,7 +53,8 @@ export const audio = {
   async run(commandOptions) {
     const { interaction } = commandOptions
     if (!isUserOnAVoiceChannel(interaction.member as GuildMember)) {
-      return embed.sendUserNotJoinAnyVoiceChannel(interaction)
+      // return embed.sendUserNotJoinAnyVoiceChannel(interaction)
+      return
     }
     
     const options = getOptions(interaction)
@@ -68,7 +68,7 @@ export const audio = {
 
     const currentState = AudioState.get()
     if (!currentState.audioPlayer) {
-      return await embed.sendNoAudioPlayed(interaction)
+      // return await embed.sendNoAudioPlayed(interaction)
     }
 
     audioCommand[subCommand](commandOptions, undefined)

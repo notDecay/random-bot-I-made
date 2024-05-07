@@ -1,7 +1,6 @@
 import type { AudioPlayer, VoiceConnection } from "@discordjs/voice"
 import type { User } from "discord.js"
 import { Queue } from "../../../utils"
-import type { AnyAudioResource } from "./audio"
 
 export interface IAudioState {
   host?: User
@@ -22,7 +21,7 @@ const DEFAULT_STATE: IAudioState = {
 let currentState = { ...DEFAULT_STATE }
 
 export namespace AudioState {
-  export const queue = new Queue<AnyAudioResource>()
+  export const queue = new Queue<string>()
 
   export const get = (): IAudioState => currentState
   export function set(state: PartialAudioState = {}) {
